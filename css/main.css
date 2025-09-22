@@ -1,0 +1,90 @@
+
+/* General reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body styling */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  background-color: #f8f9fa;
+  color: #333;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  background: #343a40;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+header h2 {
+  font-size: 2rem;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+header h3 {
+  font-weight: normal;
+  color: #ced4da;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+header h4 {
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+header a {
+  color: #ffc107;
+  text-decoration: none;
+}
+
+header a:hover {
+  text-decoration: underline;
+}
+
+/* Main content */
+main p {
+  margin: 20px 0 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #495057;
+}
+
+ul {
+  list-style: none;
+  margin-bottom: 20px;
+  padding-left: 10px;
+}
+
+ul li {
+  margin: 8px 0;
+}
+
+/* Links */
+a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+/* Container for spacing */
+main {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
