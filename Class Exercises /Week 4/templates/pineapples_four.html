@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pineapples again in flask and vars</title>
+</head>
+<body>
+    <h1>pineapples again in flask number 4</h1>
+    {% if userLoggedInHTML%}
+    <h1>My List: {{a_HTML_list}}</h1>
+    <ul>
+    {% for item in a_HTML_list %} <!-- simple loop in python  (standard python expression)-->
+        <li style = "color:brown">{{ item }}</li>
+    {% endfor %}
+    </ul>
+
+<!-- boolean for user -->
+    {% else %}
+    {% if "magenta" in b_HTML_list %} <!-- conditional statement in python (standard python expression)-->
+        <p style = "color:magenta">FOUND MAGENTA!</h2>
+    {%elif "purple" in b_HTML_list %}
+        <p style = "color:purple">FOUND PURPLE!</h2>
+    {% else %}
+        <p style = "color:green">NO MAGENTA</h2>
+    {% endif %}
+<!-- end userbool -->
+    {% endif %}
+
+</body>

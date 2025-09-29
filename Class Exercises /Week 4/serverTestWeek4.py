@@ -18,5 +18,14 @@ def three():
                            someHTMLVar = someNewVar,
                            someHTMLList = someNewList,
                            someHTMLDict = someDict)
+@app.route("/four")
+def four():
+    userLoggedIn = True
+    a_new_list = [1,2,3,4,5]
+    b_new_list = ["blue", "red", "cyan", "magenta", "purple"]
+    return render_template("pineapples_four.html", 
+                           a_HTML_list = a_new_list,
+                           b_HTML_list = b_new_list,
+                           userLoggedInHTML = userLoggedIn)
 
 app.run(debug=True)
