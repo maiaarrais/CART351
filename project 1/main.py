@@ -3,14 +3,27 @@ Minimal terminal app to search and view air quality data.
 - Live data from World Air Quality Index API
 - Interactive (input): search stations by keyword, pick one, view details
 - Terminal-only visuals: ASCII bar + emoji band
+
+Expected run flow: 
+    WAQI Minimal — search → pick station → view
+    # User enters a keyword like "Montreal", sees a table of stations.
+    # User chooses a row number or types a UID.
+    # Program prints a detailed "LIVE AQI" panel for that station.
+
+(Actual numbers/rows vary because the API is live.)
+
 """
 
 import os
 import sys
+from dotenv import load_dotenv
 import requests
 from colorama import init as colorama_init, Fore, Style
 
 colorama_init(autoreset=True)
+
+
+load_dotenv()  # reads .env into environment
 
 API_SEARCH = "https://api.waqi.info/search/"
 API_FEED_ID = "https://api.waqi.info/feed/@{uid}"
@@ -46,11 +59,9 @@ def color_for_aqi(aqi: int) -> str:
     return Fore.LIGHTMAGENTA_EX
 
 def get_token():
-    token = os.environ.get("WAQI_TOKEN", "").strip()
+    token = os.getenv("WAQI_TOKEN", "").strip()
     if not token:
-        token = input("Enter WAQI API token: ").strip()
-    if not token:
-        print("No token. Exiting.")
+        print("No WAQI_TOKEN set. Put it in a .env file or env var.")
         sys.exit(1)
     return token
 
@@ -88,6 +99,22 @@ def fetch_by_uid(token: str, uid: int):
         return None
 
 def show_results_table(results):
+
+    # Expected output (example; colors not shown in comments):
+    # 
+    # #  Station (AQI)                            UID        Lat, Lon
+    # -- ---------------------------------------- ---------- ----------------------
+    #  1 Montreal                                (24)       5922       45.5086699, -73.5539925
+    #  2 Échangeur Décarie, Montreal, Canada     (30)       8595       45.502648, -73.663913
+    #  3 Ontario, Montreal, Canada               (30)       8628       45.52055, -73.563222
+    #  4 Jardin Botanique, Montreal, Canada      (17)       8695       45.56221, -73.571785
+    #  5 Verdun, Montreal, Canada                (12)       8594       45.472854, -73.57296
+    #   ... (more rows) ...
+    #
+    # Notes:
+    # - The AQI in parentheses is colorized in the real terminal.
+    # - Rows and values will change based on live API data.
+
     print("\n#  Station (AQI)                            UID        Lat, Lon")
     print("-- ---------------------------------------- ---------- ----------------------")
     for i, item in enumerate(results, start=1):
@@ -124,6 +151,28 @@ def render_feed(data):
     timeblock = data.get("time", {})
 
     print("\n=== LIVE AQI ===")
+
+# Expected (example):
+    # === LIVE AQI ===
+    # City:        Sainte-Anne-de-Bellevue, Montreal, Canada
+    # AQI:         30  🙂  (Moderate)
+    # Bar:         ████████░░░░░░░░░░░░░░░░░░░  ← (length depends on AQI)
+    # Dominant:    pm25
+    # Time:        2025-09-22T14:00:00-04:00
+    #
+    # IAQI (per-pollutant):
+    #   - co      6.4
+    #   - h       75.1
+    #   - no2     7.4
+    #   - o3      22
+    #   - p       1013.6
+    #   - pm25    30
+    #   - so2     5.1
+    #   - t       19.1
+    #   - w       1
+    #   - wg      1.3
+
+
     print(f"City:        {city}")
     if aqi is not None:
         label, emo = aqi_band(aqi)
@@ -132,6 +181,10 @@ def render_feed(data):
         print(f"Bar:         {color}{ascii_bar(aqi)}{Style.RESET_ALL}")
         print(f"Dominant:    {color}{dom}{Style.RESET_ALL}")
     else:
+        # Expected when AQI missing:
+        # AQI:         n/a  ❔  (no reading)
+        # Bar:         ░░░░░░░░░░░░░░░░░░░░░░░░
+        # Dominant:    pm25
         print("AQI:         n/a  ❔  (no reading)")
         print(f"Bar:         {ascii_bar(0)}")
         print(f"Dominant:    {dom}")
@@ -148,9 +201,10 @@ def render_feed(data):
 
 def main():
     print("WAQI Minimal — search → pick station → view")
-    token = get_token() #b56f95070bbbb4a118e837f5ae1527d08e14d8e7
+    token = get_token()
 
     while True:
+        # OUTER LOOP: choose keyword
         kw = input("\nSearch keyword (e.g., Montreal) or ENTER to quit: ").strip()
         if not kw:
             print("Bye!")
@@ -161,40 +215,49 @@ def main():
             print("No stations found (or network error). Try another keyword.")
             continue
 
-        show_results_table(results)
+        # INNER LOOP: reuse the SAME results so user can pick multiple stations
+        while True:
+            show_results_table(results)
 
-        choice = input("\nPick by list index OR type a UID (q to back): ").strip().lower()
-        if choice == "q":
-            continue
+            choice = input(
+                "\nPick by list index OR type a UID "
+                "(b/back = new keyword, r/refresh = refresh list): "
+            ).strip().lower()
 
-        uid = None
-        if choice.isdigit():
-            idx = int(choice)
-            if 1 <= idx <= len(results):
-                uid = results[idx - 1].get("uid")
-            else:
-                # Maybe they actually typed a UID
-                uid = int(choice)
-        else:
-            # Try parse UID directly (handles inputs like "5468")
-            try:
-                uid = int(choice)
-            except ValueError:
-                print("Not a valid index/UID.")
+            if choice in ("b", "back"):
+                # break inner loop → go ask for a NEW keyword
+                break
+            if choice in ("r", "refresh"):
+                # refresh the same keyword’s results and stay in inner loop
+                results = search_stations(token, kw)
                 continue
 
-        data = fetch_by_uid(token, int(uid))
-        if not data:
-            print("Couldn’t fetch that station feed. Try another.")
-            continue
+            uid = None
+            if choice.isdigit():
+                idx = int(choice)
+                if 1 <= idx <= len(results):
+                    uid = results[idx - 1].get("uid")
+                else:
+                    # maybe they actually typed a UID
+                    uid = int(choice)
+            else:
+                try:
+                    uid = int(choice)  # typed a UID directly
+                except ValueError:
+                    print("Not a valid index/UID.")
+                    continue
 
-        render_feed(data)
+            data = fetch_by_uid(token, int(uid))
+            if not data:
+                print("Couldn’t fetch that station feed. Try another.")
+                continue
 
-        # choose another station without going back
-        again = input("\nCheck another station with same keyword? (y/n): ").strip().lower()
-        if again != "y":
-            # loop back to a new keyword
-            pass
+            render_feed(data)
+
+            # stay in the SAME keyword/results if 'y'; otherwise break to new keyword
+            again = input("\nCheck another station from the same list? (y/n): ").strip().lower()
+            if again != "y":
+                break  # leave inner loop → back to keyword prompt
 
 if __name__ == "__main__":
     try:
