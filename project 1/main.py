@@ -12,7 +12,7 @@ import requests
 API_SEARCH = "https://api.waqi.info/search/"
 API_FEED_ID = "https://api.waqi.info/feed/@{uid}"
 
-# AQI bands: (low, high, label, emoji)
+# AQI bands: (min, max, label, emoji)
 BANDS = [
     (0, 50, "Good", "😌"),
     (51, 100, "Moderate", "🙂"),
