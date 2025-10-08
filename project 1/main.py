@@ -8,6 +8,9 @@ Minimal terminal app to search and view air quality data.
 import os
 import sys
 import requests
+from colorama import init as colorama_init, Fore, Style
+
+colorama_init(autoreset=True)
 
 API_SEARCH = "https://api.waqi.info/search/"
 API_FEED_ID = "https://api.waqi.info/feed/@{uid}"
@@ -21,6 +24,26 @@ BANDS = [
     (201, 300, "Very Unhealthy", "🤢"),
     (301, 500, "Hazardous", "☠️"),
 ]
+def parse_aqi(val):
+    """Return int AQI or None if not parseable."""
+    if val is None:
+        return None
+    if isinstance(val, (int, float)):
+        return int(val)
+    if isinstance(val, str):
+        s = val.strip()
+        if s.isdigit():
+            return int(s)
+    return None
+
+def color_for_aqi(aqi: int) -> str:
+    """Return a Colorama foreground color for the AQI band."""
+    if aqi <= 50:   return Fore.GREEN
+    if aqi <= 100:  return Fore.YELLOW
+    if aqi <= 150:  return Fore.LIGHTYELLOW_EX  
+    if aqi <= 200:  return Fore.RED
+    if aqi <= 300:  return Fore.MAGENTA
+    return Fore.LIGHTMAGENTA_EX
 
 def get_token():
     token = os.environ.get("WAQI_TOKEN", "").strip()
@@ -70,42 +93,58 @@ def show_results_table(results):
     for i, item in enumerate(results, start=1):
         st = item.get("station", {})
         name = (st.get("name") or "—")[:40]
-        aqi = str(item.get("aqi", "—"))
+        aqi_raw = item.get("aqi")           # ✅ correct variable
         uid = str(item.get("uid", "—"))
         geo = st.get("geo", ["?", "?"])
         latlon = f"{geo[0]}, {geo[1]}" if isinstance(geo, list) and len(geo) == 2 else "—"
-        print(f"{i:>2} {name:<40} ({aqi:<3})  {uid:<10} {latlon}")
+
+        aqi_val = parse_aqi(aqi_raw)
+        if aqi_val is not None:
+            c = color_for_aqi(aqi_val)
+            aqi_disp = f"{c}{aqi_val}{Style.RESET_ALL}"
+        else:
+            aqi_disp = "—"
+
+        print(f"{i:>2} {name:<40} ({aqi_disp})  {uid:<10} {latlon}")
+
 
 def render_feed(data):
     city = data.get("city", {}).get("name", "Unknown")
-    aqi_raw = data.get("aqi", "—")
-    try:
-        aqi = int(aqi_raw)
-    except Exception:
-        aqi = -1
+    iaqi = data.get("iaqi", {})
+    aqi = parse_aqi(data.get("aqi"))       # ✅ parse
+    # Optional fallback if AQI missing: try pm25 → pm10 → o3
+    if aqi is None and isinstance(iaqi, dict):
+        for key in ("pm25", "pm10", "o3"):
+            v = iaqi.get(key, {})
+            v = v.get("v") if isinstance(v, dict) else None
+            if isinstance(v, (int, float)):
+                aqi = int(v); break
 
     dom = data.get("dominentpol", "n/a")
-    iaqi = data.get("iaqi", {})
     timeblock = data.get("time", {})
-
-    if aqi >= 0:
-        label, emo = aqi_band(aqi)
-    else:
-        label, emo = ("n/a", "❔")
 
     print("\n=== LIVE AQI ===")
     print(f"City:        {city}")
-    print(f"AQI:         {aqi}  {emo}  ({label})")
-    print(f"Bar:         {ascii_bar(aqi if aqi >= 0 else 0)}")
-    print(f"Dominant:    {dom}")
+    if aqi is not None:
+        label, emo = aqi_band(aqi)
+        color = color_for_aqi(aqi)
+        print(f"AQI:         {color}{aqi}{Style.RESET_ALL}  {emo}  ({label})")
+        print(f"Bar:         {color}{ascii_bar(aqi)}{Style.RESET_ALL}")
+        print(f"Dominant:    {color}{dom}{Style.RESET_ALL}")
+    else:
+        print("AQI:         n/a  ❔  (no reading)")
+        print(f"Bar:         {ascii_bar(0)}")
+        print(f"Dominant:    {dom}")
+
     stamp = timeblock.get("iso") or f"{timeblock.get('s', '—')} {timeblock.get('tz','')}"
     print(f"Time:        {stamp}")
 
-    if iaqi:
+    if isinstance(iaqi, dict) and iaqi:
         print("\nIAQI (per-pollutant):")
         for k, v in iaqi.items():
             val = v.get("v", "—") if isinstance(v, dict) else v
             print(f"  - {k:<6} {val}")
+
 
 def main():
     print("WAQI Minimal — search → pick station → view")
