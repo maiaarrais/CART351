@@ -148,7 +148,7 @@ def render_feed(data):
 
 def main():
     print("WAQI Minimal — search → pick station → view")
-    token = get_token()
+    token = get_token() #b56f95070bbbb4a118e837f5ae1527d08e14d8e7
 
     while True:
         kw = input("\nSearch keyword (e.g., Montreal) or ENTER to quit: ").strip()
