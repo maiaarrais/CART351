@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+ 
+{% block content %}
+<section class="hero">
+  <h1 class="title">{{ topic|title }}</h1>
+
+  {% if num_donuts >= 24 %}
+    <p class="badge badge-hot">Party Size! ({{ num_donuts }} donuts available)</p>
+  {% elif num_donuts > 0 %}
+    <p class="badge">In Stock: {{ num_donuts }}</p>
+  {% else %}
+    <p class="badge badge-out">Sold Out</p>
+  {% endif %}
+</section>
+
+<section class="grid">
+  {% for p in products %}
+    <article class="card">
+      <img
+        src="{{ url_for('static', filename='images/' ~ p.img) }}"
+        alt="{{ p.flavour }} donut"
+        class="card-img"
+      />
+      <div class="card-body">
+        <h3 class="card-title">{{ p.flavour }}</h3>
+
+        <p class="muted">Popular toppings:</p>
+        <ul class="chips">
+          {% for t in toppings %}
+            <li class="chip {% if 'Chocolate' in t and 'Chocolate' in p.flavour %}chip{% endif %}">
+              {{ t }}
+            </li>
+          {% endfor %}
+        </ul>
+
+        <p class="muted">Try it with ice cream:</p>
+        <div class="row">
+          {% for ic in icecreams %}
+            <span class="pill">{{ ic }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="lists">
+  <div>
+    <h4>All Flavours</h4>
+      {% for f in flavours %}
+        <li>{{ f }}</li>
+      {% endfor %}
+  </div>
+  <div>
+    <h4>All Toppings</h4>
+    <ul>
+      {% for t in toppings %}
+        <li>{{ t }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

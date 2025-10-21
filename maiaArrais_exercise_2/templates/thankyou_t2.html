@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .thanks { max-width: 860px; margin: 16px auto; padding: 18px; background: #ffffff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .muted { color: #555; font-size: 14px; }
+  .panel { margin-top: 14px; background: rgb(229,243,245); border: 1px solid #d4d6da; border-radius: 10px; padding: 14px; }
+  .result { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 18px; line-height: 1.5; word-break: break-word; }
+  .cta { margin-top: 12px; display: flex; gap: 10px; }
+  .cta a { background: rgb(167,69,112); color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .cta a:hover { opacity: .95; }
+</style>
+
+<div class="thanks">
+  <h1>Thank you!</h1>
+  <p class="muted">We merged your three inputs into one string and replaced every vowel with an asterisk.</p>
+
+  <div class="panel">
+    <h3 style="margin:0 0 8px 0;">Transformed text</h3>
+    <div class="result">{{ result }}</div>
+  </div>
+
+  <div class="panel" style="margin-top:12px;">
+    <h4 style="margin:0 0 6px 0;">Original combined text</h4>
+    <div class="muted">{{ combined }}</div>
+  </div>
+
+  <div class="cta">
+    <a href="{{ url_for('t2') }}">Try again</a>
+  </div>
+</div>
+{% endblock %}

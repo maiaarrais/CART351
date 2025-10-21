@@ -2,10 +2,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-   
-     <h3>** Welcome  **</h3>
-    <section>
-        <!-- stuff goes in here -->
-         <p> This is the content for the index page</p>
+   <h1>The number of Donuts is{{number_of_donuts}} </h1>
+    <section class = "donuts">
+    <div class="items">
+    {% for item in donut_data %}
+ 
+        <h3>{{item}}</h3>
+ 
+    {% endfor %}
+    </div>
+    <div class = "img_div">
+        <img src = "{{url_for('static' , filename ='images/'+imgPath)}}"/>
+ 
+    </div>
     </section>
 {% endblock %}
