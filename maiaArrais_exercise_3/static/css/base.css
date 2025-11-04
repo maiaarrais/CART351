@@ -1,0 +1,355 @@
+*{
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family: "Roboto", sans-serif;
+}
+
+h2{
+    font-size:32px;
+    padding:5px;
+    background-color:rgb(167, 69, 112);
+    color: rgb(255,255,255);
+}
+
+nav{
+    padding-bottom:5px;
+    background-color:rgb(167, 69, 112);
+}
+
+nav ul{
+    display:flex;
+    justify-content:right;
+    gap: 20px;
+    padding-right: 20px;
+}
+
+nav ul li{
+    text-transform: uppercase;
+    text-decoration: none;
+    list-style-type: none;
+    transition: transform 0.2s;
+}
+
+nav ul li:hover{
+    transform: translateY(-2px);
+}
+
+nav li a{
+    text-decoration: none;
+    color:rgb(255, 255, 255);
+    padding: 8px 16px;
+    display: block;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+nav li a:hover{
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+main{
+    margin: 10px;
+    background-color: rgb(229, 243, 245);
+    min-height:calc(75vh);
+}
+
+footer{
+    background-color:rgb(167, 69, 112);
+    min-height:5vh;
+    padding:5px;
+    color: rgb(255,255,255);
+}
+
+/* fortune teller  */
+
+.fortune-container {
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 50%, #ffeaa7 100%);
+        border-radius: 20px;
+        margin: 20px auto;
+        max-width: 800px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .fortune-container::before {
+        content: '✨';
+        position: absolute;
+        font-size: 100px;
+        opacity: 0.1;
+        top: -20px;
+        left: 20px;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .fortune-container::after {
+        content: '🥠';
+        position: absolute;
+        font-size: 100px;
+        opacity: 0.1;
+        bottom: -20px;
+        right: 20px;
+        animation: float 4s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .fortune-title {
+        color: white;
+        font-size: 36px;
+        margin-bottom: 10px;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        font-weight: 900;
+    }
+    
+    .fortune-subtitle {
+        color: #fff8dc;
+        font-size: 18px;
+        margin-bottom: 30px;
+        font-style: italic;
+    }
+    
+    .cookie-wrapper {
+        position: relative;
+        margin: 30px 0;
+    }
+    
+    .cookie-image {
+        font-size: 150px;
+        cursor: pointer;
+        transition: transform 0.3s, filter 0.3s;
+        display: inline-block;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .cookie-image:hover {
+        transform: scale(1.1) rotate(5deg);
+        filter: drop-shadow(0 15px 30px rgba(255,106,136,0.5));
+    }
+    
+    .cookie-image.cracked {
+        animation: crack 0.5s ease-out;
+    }
+    
+    @keyframes crack {
+        0% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(0.95) rotate(-10deg); }
+        50% { transform: scale(1.1) rotate(10deg); }
+        75% { transform: scale(0.9) rotate(-5deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+    
+    .fortune-display {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin: 20px 0;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        min-height: 150px;
+        display: none;
+        animation: slideDown 0.5s ease-out;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fortune-display.show {
+        display: block;
+    }
+    
+    .fortune-text {
+        font-size: 24px;
+        color: #333;
+        font-weight: 500;
+        margin-bottom: 15px;
+        font-style: italic;
+        line-height: 1.6;
+    }
+    
+    .lucky-numbers {
+        font-size: 16px;
+        color: #ff6a88;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    
+    .mood-selector {
+        margin: 20px 0;
+    }
+    
+    .mood-label {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: block;
+    }
+    
+    .mood-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .mood-btn {
+        padding: 10px 20px;
+        font-size: 24px;
+        border: 3px solid white;
+        border-radius: 50px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.2);
+        transition: all 0.3s;
+        backdrop-filter: blur(10px);
+    }
+    
+    .mood-btn:hover {
+        transform: scale(1.1);
+        background: rgba(255,255,255,0.4);
+        box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+    }
+    
+    .mood-btn.selected {
+        background: white;
+        transform: scale(1.15);
+        box-shadow: 0 5px 20px rgba(255,255,255,0.5);
+    }
+    
+    .action-buttons {
+        margin: 20px 0;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        padding: 15px 30px;
+        font-size: 18px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .crack-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .crack-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(245,87,108,0.4);
+    }
+    
+    .save-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+    
+    .save-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(79,172,254,0.4);
+    }
+    
+    .save-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .new-cookie-btn {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+    }
+    
+    .new-cookie-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(250,112,154,0.4);
+    }
+    
+    #message {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        opacity: 0;
+        transition: all 0.5s;
+    }
+    
+    #message.show {
+        opacity: 1;
+        animation: bounceIn 0.6s ease-out;
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0.3);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    #message.success {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+    }
+    
+    #message.error {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(235,51,73,0.4);
+    }
+    
+    .stats {
+        color: white;
+        font-size: 14px;
+        margin-top: 20px;
+        opacity: 0.9;
+    }
+    
+    .click-hint {
+        color: white;
+        font-size: 16px;
+        margin-top: 10px;
+        animation: blink 2s ease-in-out infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="fortune-container">
+    <h3 class="fortune-title">🥠 Fortune Cookie Oracle 🥠</h3>
+    <p class="fortune-subtitle">Crack open your destiny and save your wisdom!</p>
+    
+    <div class="cookie-wrapper">
+        <div class="cookie-image" id="cookie">🥠</div>
+        <p class="click-hint" id="clickHint">👆 Click the cookie to reveal your fortune!</p>
+    </div>
+    
+    <div class="fortune-display" id="fortuneDisplay">
+        <p class="fortune-text" id="fortuneText"></p>
+        <p class="lucky-numbers" id="luckyNumbers"></p>
+        
+        <div class="mood-selector">
+            <span class="mood-label">How does this fortune make you feel?</span>
+            <div class="mood-buttons">
+                <button class="mood-btn" data-mood="😊" title="Happy">😊</button>
+                <button class="mood-btn" data-mood="🤔" title="Thoughtful">🤔</button>
+                <button class="mood-btn" data-mood="😮" title="Surprised">😮</button>
+                <button class="mood-btn" data-mood="😎" title="Cool">😎</button>
+                <button class="mood-btn" data-mood="🥰" title="Loved">🥰</button>
+                <button class="mood-btn" data-mood="😂" title="Amused">😂</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <button class="action-btn crack-btn" id="crackBtn">🔨 Crack Cookie</button>
+        <button class="action-btn save-btn" id="saveBtn" disabled>💾 Save Fortune</button>
+        <button class="action-btn new-cookie-btn" id="newCookieBtn" style="display:none;">🆕 New Cookie</button>
+    </div>
+    
+    <div id="message"></div>
+    
+    <p class="stats">Your fortunes are saved forever in the cosmic archive!</p>
+</div>
+
+<script src="../static/js/fortuneTeller.js"></script>
+
+{% endblock %}
