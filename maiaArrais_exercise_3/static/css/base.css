@@ -68,7 +68,7 @@ footer{
 .fortune-container {
         text-align: center;
         padding: 40px 20px;
-        background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 50%, #ffeaa7 100%);
+        background-color:rgb(167, 69, 112);
         border-radius: 20px;
         margin: 20px auto;
         max-width: 800px;
@@ -285,7 +285,7 @@ footer{
     }
     
     .new-cookie-btn {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
     }
     
