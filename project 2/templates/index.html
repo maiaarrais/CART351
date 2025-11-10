@@ -5,15 +5,59 @@
     <p>Pick a time slot below. Seats update live as people book.</p>
   </section>
 
+  <!-- Controls -->
+  <section class="controls">
+    <div class="left">
+      <button class="btn-light icon-btn" id="prevWeek" title="Previous week">⟨</button>
+      <div class="week-label" id="weekLabel">This Week</div>
+      <button class="btn-light icon-btn" id="nextWeek" title="Next week">⟩</button>
+    </div>
+    <div class="right">
+      <input id="searchInput" class="input" type="text" placeholder="Search class or time…" />
+      <select id="typeFilter" class="select">
+        <option value="all">All types</option>
+        <option value="pilates">Pilates</option>
+        <option value="yoga">Yoga</option>
+      </select>
+      <div class="segmented">
+        <button id="viewGrid" class="seg active">Grid</button>
+        <button id="viewAgenda" class="seg">Agenda</button>
+      </div>
+    </div>
+  </section>
+
   <section id="calendar" class="calendar"></section>
+  <section id="agenda" class="agenda hidden"></section>
+
+  
 
   <!-- Booking Modal -->
   <dialog id="bookDialog">
-    <form id="bookForm" method="dialog">
+    <form id="bookForm" method="dialog" class ="modal-form">
       <h3 id="modalTitle">Reserve Spot</h3>
       <input type="hidden" name="class_id" id="class_id" />
-      <label>Your Name <input type="text" id="name" required /></label>
-      <label>Email <input type="email" id="email" required /></label>
+      <div id="modalMeta" class="meta-line"></div>
+
+      <div id="stepDetails">
+        <label>Your Name
+          <input type="text" id="name" required />
+        </label>
+        <label>Email
+          <input type="email" id="email" required />
+        </label>
+      </div>
+
+      <div id="stepConfirm" class="hidden">
+        <div class="success-box">
+          <div class="success-title">You’re in! <span id="confirmBadge" class="pill"></span></div>
+          <p id="confirmCopy" class="muted"></p>
+          <div class="confirm-actions">
+            <button id="icsBtn" type="button" class="btn-light">Add to Calendar (.ics)</button>
+            <button id="closeBtn" type="button" class="btn">Done</button>
+          </div>
+        </div>
+      </div>
+
       <div class="modal-actions">
         <button value="cancel" class="btn btn-light">Cancel</button>
         <button id="submitBooking" class="btn">Book</button>
