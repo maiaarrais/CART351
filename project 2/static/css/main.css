@@ -1,0 +1,178 @@
+:root {
+  --bg: #0f1115;
+  --panel: #171a21;
+  --text: #e8ebf0;
+  --muted: #9aa5b1;
+  --accent: #6ee7b7;
+  --accent-2: #60a5fa;
+  --danger: #f87171;
+  --warn: #fbbf24;
+  --ok: #34d399;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 10% -10%, #121420, transparent), var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.nav a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 12px;
+}
+.nav a:hover { color: var(--text); }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.hero h1 { margin: 0 0 8px 0; }
+.hero p { color: var(--muted); margin-top: 0; }
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.day-col {
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+.day-col h4 {
+  margin: 0 0 8px 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.slot {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: transform .1s ease, border .2s ease;
+}
+.slot:hover { transform: translateY(-1px); }
+.slot .title { font-weight: 600; }
+.slot .meta { font-size: 12px; color: var(--muted); }
+.slot.full {
+  opacity: .65;
+  border-color: rgba(248,113,113,0.5);
+}
+.slot .pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  margin-top: 4px;
+  background: rgba(96,165,250,0.15);
+  color: var(--accent-2);
+}
+
+/* --- Modal --- */
+dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 16px 18px;
+  width: 320px;
+  background: var(--panel);
+  color: var(--text);
+}
+label { display: block; margin: 8px 0; font-size: 14px; }
+input[type="text"], input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: #0f131a;
+  color: var(--text);
+}
+.btn {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border: none;
+  color: #0a0b0f;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.btn-light {
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- Table / Admin --- */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 10px;
+  text-align: left;
+  font-size: 14px;
+}
+.table tr:hover { background: rgba(255,255,255,0.03); }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+/* --- Status Tags --- */
+.status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  display: inline-block;
+}
+.status.pending { background: rgba(251,191,36,0.15); color: var(--warn); }
+.status.confirmed { background: rgba(52,211,153,0.15); color: var(--ok); }
+.status.completed { background: rgba(110,231,183,0.15); color: var(--accent); }
+.status.cancelled { background: rgba(248,113,113,0.15); color: var(--danger); }
+.status.waitlist { background: rgba(96,165,250,0.15); color: var(--accent-2); }
+
+/* --- Toast --- */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+.hidden { display: none; }

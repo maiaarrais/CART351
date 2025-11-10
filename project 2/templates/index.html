@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="hero">
+    <h1>Book a Class</h1>
+    <p>Pick a time slot below. Seats update live as people book.</p>
+  </section>
+
+  <section id="calendar" class="calendar"></section>
+
+  <!-- Booking Modal -->
+  <dialog id="bookDialog">
+    <form id="bookForm" method="dialog">
+      <h3 id="modalTitle">Reserve Spot</h3>
+      <input type="hidden" name="class_id" id="class_id" />
+      <label>Your Name <input type="text" id="name" required /></label>
+      <label>Email <input type="email" id="email" required /></label>
+      <div class="modal-actions">
+        <button value="cancel" class="btn btn-light">Cancel</button>
+        <button id="submitBooking" class="btn">Book</button>
+      </div>
+    </form>
+  </dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

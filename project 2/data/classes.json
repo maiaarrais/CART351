@@ -1,0 +1,7 @@
+[
+  {"id":"pilates-mon-1800","title":"Pilates Foundations","weekday":1,"time":"18:00","capacity":10},
+  {"id":"pilates-wed-1830","title":"Pilates Core","weekday":3,"time":"18:30","capacity":8},
+  {"id":"pilates-fri-1700","title":"Stretch & Align","weekday":5,"time":"17:00","capacity":12},
+  {"id":"yoga-tue-1900","title":"Vinyasa Flow","weekday":2,"time":"19:00","capacity":14},
+  {"id":"yoga-thu-0730","title":"Sunrise Yoga","weekday":4,"time":"07:30","capacity":10}
+]

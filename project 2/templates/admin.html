@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="hero">
+    <h1>Admin Dashboard</h1>
+    <p>Manage bookings and track utilization.</p>
+  </section>
+
+  <section class="admin-panels">
+    <div class="panel">
+      <h3>Bookings</h3>
+      <table class="table" id="bookingsTable">
+        <thead>
+          <tr><th>Time</th><th>Class</th><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <h3>Utilization</h3>
+      <div id="utilization"></div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
