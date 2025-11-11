@@ -7,10 +7,10 @@ A simple, class booking web app built with Flask to make lives easier.
 
 ## 🎯 Concept
 
-**Flow Studio** is a small web application designed to make class scheduling easier for teachers and students — especially in smaller studios that don’t have a full booking system.  
+**Flow Studio** is a small web application designed to make class scheduling easier for teachers and students, especially in smaller studios that don’t have a full booking system.  
 As someone who attends Pilates classes often, I noticed how some studios still rely on messages or paper lists for sign-ups. This project aims to simplify that process by creating an easy-to-use, visual platform where users can see class availability and book instantly.
 
-The goal was to take what we’ve learned in class — Flask, JSON, Jinja templates, Fetch requests — and turn it into something functional and meaningful. Instead of a purely technical demo, I wanted to build something that could genuinely help real people manage their time better.
+The goal was to take what we’ve learned in class: Flask, JSON, Jinja templates, Fetch requests, and turn it into something functional and meaningful. Instead of a purely technical demo, I wanted to build something that could genuinely help real people manage their time better.
 
 ---
 
@@ -18,7 +18,7 @@ The goal was to take what we’ve learned in class — Flask, JSON, Jinja templa
 
 - The app **reads class information** from a `classes.json` file (with schedule, time, and capacity).  
 - When a user books a class, the data is **sent via a Fetch POST request** to the Flask server and **stored in a `bookings.json` file**.  
-- Bookings are **displayed visually** on the main page as part of a collective schedule — you can see which classes are filling up in real time.  
+- Bookings are **displayed visually** on the main page as part of a collective schedule, you can see which classes are filling up in real time.  
 - The interface also includes filters, capacity meters, and dynamic updates for a clean and transparent experience.
 
 While the admin and user sides are not yet separated (meaning it’s not secure for public release), this version works as a **fully functional prototype** and a foundation for future improvements. 
