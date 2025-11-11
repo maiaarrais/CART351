@@ -1,7 +1,7 @@
 # PROJECT 2 
 
 # 🧘‍♀️ Find Your Balance  
-*A simple, class booking web app built with Flask to make lives easier.*
+A simple, class booking web app built with Flask to make lives easier.
 
 ---
 
