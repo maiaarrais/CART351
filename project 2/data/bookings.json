@@ -4,7 +4,7 @@
     "class_id": "pilates-mon-1800",
     "name": "Maia",
     "email": "maiacarrais@gmail.com",
-    "status": "confirmed",
+    "status": "cancelled",
     "ts": "2025-11-10T23:24:30.156184Z"
   },
   {
@@ -14,5 +14,41 @@
     "email": "m_arrais@live.concordia.ca",
     "status": "confirmed",
     "ts": "2025-11-10T23:39:55.717651Z"
+  },
+  {
+    "id": "b_520cbccfca4b",
+    "class_id": "pilates-mon-1800",
+    "date": "2025-11-11",
+    "name": "maia",
+    "email": "maiacarrais@gmail.com",
+    "status": "cancelled",
+    "ts": "2025-11-11T00:31:26.765443Z"
+  },
+  {
+    "id": "b_a447a80925bb",
+    "class_id": "pilates-mon-1800",
+    "date": "2025-11-11",
+    "name": "maia",
+    "email": "maiacarrais@gmail.com",
+    "status": "confirmed",
+    "ts": "2025-11-11T00:35:04.276359Z"
+  },
+  {
+    "id": "b_773b4fc1f816",
+    "class_id": "pilates-mon-1800",
+    "date": "2025-11-11",
+    "name": "julissa",
+    "email": "julissa_mateo@hotmail.com",
+    "status": "confirmed",
+    "ts": "2025-11-11T00:39:24.886553Z"
+  },
+  {
+    "id": "b_33e9908b4b09",
+    "class_id": "pilates-mon-1800",
+    "date": "2025-11-11",
+    "name": "anyone",
+    "email": "maiacamilaarrais@gmail.com",
+    "status": "confirmed",
+    "ts": "2025-11-11T04:27:30.420383Z"
   }
 ]

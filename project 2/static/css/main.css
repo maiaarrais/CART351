@@ -139,6 +139,8 @@ body::after {
   grid-template-columns: repeat(7, 1fr);
   gap: 16px;
   margin-top: 32px;
+  justify-content: center;       /* horizontally centers the grid */
+  justify-items: center;         /* centers items inside columns */
 }
 
 .day-col {

@@ -1,9 +1,9 @@
 from flask import Flask, jsonify, request, render_template
 import json, os, threading, tempfile, shutil, uuid, re
 from datetime import datetime, timedelta
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import smtplib
+# from email.mime.text import MIMEText
+# from email.mime.multipart import MIMEMultipart
+# import smtplib
 
 app = Flask(__name__)
 
@@ -41,7 +41,6 @@ def validate_email(email):
 
 def send_confirmation_email(booking, class_info):
     """Send confirmation email - implementation of SMTP settings"""
-    # Placeholder - configure with your email service
     try:
         # msg = MIMEMultipart()
         # msg['From'] = 'bookings@flowstudio.com'
