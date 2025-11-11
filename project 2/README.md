@@ -51,6 +51,6 @@ In future iterations, I’d like to:
 ## 🌱 Summary
 
 This project is a personal exploration of how small digital tools can make real-world coordination easier.  
-It’s not perfect, but it’s a starting point — a system that combines structure, design, and code into something that helps people find a little more balance in their day.
+It’s not perfect, but it’s a starting point. A system that combines structure, design, and code into something that helps people find a little more balance in their day. It might not be super visually stimulating but it follows the calm vibe of a yoga/pilates class and a structured way to manage messy activities. 
 
 ---
