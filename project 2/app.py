@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, render_template
 import json, os, threading, tempfile, shutil, uuid, re
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
@@ -37,15 +37,17 @@ def validate_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
+# for future implementation of email sending
+
 def send_confirmation_email(booking, class_info):
-    """Send confirmation email - implement with your SMTP settings"""
+    """Send confirmation email - implementation of SMTP settings"""
     # Placeholder - configure with your email service
     try:
         # msg = MIMEMultipart()
         # msg['From'] = 'bookings@flowstudio.com'
         # msg['To'] = booking['email']
         # msg['Subject'] = f"Booking Confirmation - {class_info['title']}"
-        # body = f"Hi {booking['name']},\n\nYour booking for {class_info['title']} is confirmed."
+        # body = f"Hi {booking['name']},\n\nYour booking for {class_info['title']} on {booking['date']} is confirmed."
         # msg.attach(MIMEText(body, 'plain'))
         # server = smtplib.SMTP('smtp.gmail.com', 587)
         # server.starttls()
@@ -56,8 +58,8 @@ def send_confirmation_email(booking, class_info):
     except Exception as e:
         print(f"Email error: {e}")
 
-def process_waitlist(class_id):
-    """Move waitlist users to pending when spots open"""
+def process_waitlist(class_id, date):
+    """Move waitlist users to pending when spots open for a specific date"""
     with file_lock:
         classes = read_json(CLASSES_FILE, [])
         bookings = read_json(BOOKINGS_FILE, [])
@@ -67,8 +69,12 @@ def process_waitlist(class_id):
             return
         
         capacity = int(cls.get('capacity', 0))
-        confirmed = [b for b in bookings if b.get('class_id') == class_id and b.get('status') in ('pending', 'confirmed')]
-        waitlist = [b for b in bookings if b.get('class_id') == class_id and b.get('status') == 'waitlist']
+        confirmed = [b for b in bookings if b.get('class_id') == class_id 
+                     and b.get('date') == date 
+                     and b.get('status') in ('pending', 'confirmed')]
+        waitlist = [b for b in bookings if b.get('class_id') == class_id 
+                    and b.get('date') == date 
+                    and b.get('status') == 'waitlist']
         
         # Sort waitlist by timestamp
         waitlist.sort(key=lambda x: x.get('ts', ''))
@@ -86,6 +92,16 @@ def process_waitlist(class_id):
         
         if moved > 0:
             atomic_write_json(BOOKINGS_FILE, bookings)
+
+def is_date_valid_for_booking(date_str):
+    """Check if date is within valid booking range (today to 4 weeks ahead)"""
+    try:
+        target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        today = datetime.now().date()
+        max_date = today + timedelta(weeks=4)
+        return today <= target_date <= max_date
+    except ValueError:
+        return False
 
 @app.route('/')
 def index():
@@ -163,7 +179,17 @@ def delete_class(class_id):
 
 @app.get('/api/bookings')
 def get_bookings():
+    """Get bookings with optional date range filter"""
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
     bookings = read_json(BOOKINGS_FILE, [])
+    
+    # Filter by date range if provided
+    if start_date and end_date:
+        bookings = [b for b in bookings 
+                   if b.get('date') and start_date <= b['date'] <= end_date]
+    
     return jsonify(bookings)
 
 @app.get('/api/bookings/email/<email>')
@@ -171,17 +197,29 @@ def get_bookings_by_email(email):
     """Get bookings for a specific email"""
     bookings = read_json(BOOKINGS_FILE, [])
     user_bookings = [b for b in bookings if b.get('email', '').lower() == email.lower()]
+    
+    # Sort by date descending
+    user_bookings.sort(key=lambda x: x.get('date', ''), reverse=True)
+    
     return jsonify(user_bookings)
 
 @app.post('/api/book')
 def create_booking():
     payload = request.get_json(force=True, silent=True) or {}
     class_id = payload.get('class_id')
+    date = payload.get('date')  # NEW: specific date
     name = payload.get('name', '').strip()
     email = payload.get('email', '').strip()
 
     if not class_id:
         return jsonify({'error': 'Class ID is required'}), 400
+    
+    if not date:
+        return jsonify({'error': 'Date is required'}), 400
+    
+    # Validate date is within booking range
+    if not is_date_valid_for_booking(date):
+        return jsonify({'error': 'Can only book classes from today up to 4 weeks in advance'}), 400
     
     if not name or len(name) < 2:
         return jsonify({'error': 'Please enter a valid name'}), 400
@@ -197,20 +235,25 @@ def create_booking():
         if not cls:
             return jsonify({'error': 'Class not found'}), 404
 
-        # Check for duplicate booking
+        # Check for duplicate booking (same email, class, AND date)
         existing = next((b for b in bookings if b.get('email', '').lower() == email.lower() 
                         and b.get('class_id') == class_id 
+                        and b.get('date') == date
                         and b.get('status') in ('pending', 'confirmed', 'waitlist')), None)
         if existing:
-            return jsonify({'error': 'You have already booked this class'}), 400
+            return jsonify({'error': 'You have already booked this class for this date'}), 400
 
-        occupied = sum(1 for b in bookings if b.get('class_id') == class_id and b.get('status') in ('pending','confirmed'))
+        # Count occupied spots for this specific date
+        occupied = sum(1 for b in bookings if b.get('class_id') == class_id 
+                      and b.get('date') == date
+                      and b.get('status') in ('pending','confirmed'))
         capacity = int(cls.get('capacity', 0))
         status = 'waitlist' if occupied >= capacity else 'pending'
 
         booking = {
             'id': 'b_' + uuid.uuid4().hex[:12],
             'class_id': class_id,
+            'date': date,  # NEW: Store specific date
             'name': name,
             'email': email,
             'status': status,
@@ -222,7 +265,10 @@ def create_booking():
         # Send confirmation email
         send_confirmation_email(booking, cls)
 
-        occupied = sum(1 for b in bookings if b.get('class_id') == class_id and b.get('status') in ('pending','confirmed'))
+        # Recalculate remaining for this date
+        occupied = sum(1 for b in bookings if b.get('class_id') == class_id 
+                      and b.get('date') == date
+                      and b.get('status') in ('pending','confirmed'))
         remaining = max(0, capacity - occupied)
         return jsonify({'ok': True, 'booking': booking, 'capacity': capacity, 'remaining': remaining})
 
@@ -247,9 +293,9 @@ def update_booking(booking_id):
         
         atomic_write_json(BOOKINGS_FILE, bookings)
         
-        # If cancelled or completed, process waitlist
+        # If cancelled or completed, process waitlist for that specific date
         if status in ('cancelled', 'completed') and old_status in ('pending', 'confirmed'):
-            process_waitlist(found['class_id'])
+            process_waitlist(found['class_id'], found['date'])
     
     return jsonify({'ok': True, 'id': booking_id, 'status': status})
 
@@ -268,13 +314,14 @@ def delete_booking(booking_id):
             return jsonify({'error': 'Booking not found'}), 404
         
         class_id = found['class_id']
+        date = found['date']
         old_status = found['status']
         bookings = [b for b in bookings if b.get('id') != booking_id]
         atomic_write_json(BOOKINGS_FILE, bookings)
         
-        # Process waitlist if this was a confirmed booking
+        # Process waitlist if this was a confirmed booking for that date
         if old_status in ('pending', 'confirmed'):
-            process_waitlist(class_id)
+            process_waitlist(class_id, date)
     
     return jsonify({'ok': True, 'id': booking_id})
 

@@ -3,10 +3,12 @@ const utilizationDiv = document.getElementById('utilization');
 const heatmapDiv = document.getElementById('heatmap');
 const heatmapLegend = document.getElementById('heatmapLegend');
 const classesDiv = document.getElementById('classesManagement');
+const dateRangeDiv = document.getElementById('dateRangeFilter');
 const toast = document.getElementById('toast');
 
 let classes = [];
-let bookings = [];
+let allBookings = [];
+let filteredBookings = [];
 
 function showToast(msg, isError = false) {
   toast.textContent = msg;
@@ -19,6 +21,16 @@ function fmtDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
   return d.toLocaleString();
+}
+
+function fmtDateOnly(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { 
+    month: 'short', 
+    day: 'numeric',
+    year: 'numeric'
+  });
 }
 
 function parseTimeToMinutes(t) {
@@ -35,17 +47,98 @@ function weekdayName(i) {
   return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i];
 }
 
+function getDateRangeDefaults() {
+  const today = new Date();
+  const start = new Date(today);
+  start.setDate(today.getDate() - 7); // Last week
+  const end = new Date(today);
+  end.setDate(today.getDate() + 28); // 4 weeks ahead
+  
+  const fmt = d => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  return { start: fmt(start), end: fmt(end) };
+}
+
+/* ---------- Date Range Filter ---------- */
+function renderDateRangeFilter() {
+  const defaults = getDateRangeDefaults();
+  
+  dateRangeDiv.innerHTML = `
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">From</span>
+        <input type="date" id="startDate" class="input" value="${defaults.start}" style="min-width: 160px;" />
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">To</span>
+        <input type="date" id="endDate" class="input" value="${defaults.end}" style="min-width: 160px;" />
+      </label>
+      <button id="applyFilter" class="btn" style="margin-top: 20px;">Apply Filter</button>
+      <button id="resetFilter" class="btn-light" style="margin-top: 20px;">Reset</button>
+    </div>
+  `;
+  
+  document.getElementById('applyFilter').addEventListener('click', applyDateFilter);
+  document.getElementById('resetFilter').addEventListener('click', resetDateFilter);
+  
+  // Apply default filter on load
+  applyDateFilter();
+}
+
+async function applyDateFilter() {
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
+  
+  if (!startDate || !endDate) {
+    showToast('Please select both start and end dates', true);
+    return;
+  }
+  
+  if (startDate > endDate) {
+    showToast('Start date must be before end date', true);
+    return;
+  }
+  
+  try {
+    const res = await fetch(`/api/bookings?start_date=${startDate}&end_date=${endDate}`);
+    filteredBookings = await res.json();
+    renderTable();
+    renderUtilization();
+  } catch (err) {
+    console.error('Failed to filter bookings:', err);
+    showToast('Failed to filter bookings', true);
+  }
+}
+
+function resetDateFilter() {
+  const defaults = getDateRangeDefaults();
+  document.getElementById('startDate').value = defaults.start;
+  document.getElementById('endDate').value = defaults.end;
+  applyDateFilter();
+}
+
 /* ---------- Bookings Table ---------- */
 function renderTable() {
   bookingsTbody.innerHTML = '';
-  bookings.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
+  
+  // Sort by date descending, then timestamp
+  filteredBookings.sort((a, b) => {
+    const dateCompare = (b.date || '').localeCompare(a.date || '');
+    if (dateCompare !== 0) return dateCompare;
+    return (b.ts || '').localeCompare(a.ts || '');
+  });
 
-  for (const b of bookings) {
+  for (const b of filteredBookings) {
     const cls = classById(b.class_id);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${fmtDate(b.ts)}</td>
-      <td>${cls.title || b.class_id} (${cls.time || ''})</td>
+      <td>${fmtDateOnly(b.date)}</td>
+      <td>${cls.title || b.class_id}<br/><span style="font-size:12px;color:var(--muted);">${cls.time || ''}</span></td>
       <td>${b.name}</td>
       <td>${b.email}</td>
       <td><span class="status ${b.status}">${b.status}</span></td>
@@ -69,7 +162,8 @@ function renderTable() {
       });
       if (res.ok) {
         showToast('Booking updated');
-        await fetchAll();
+        await applyDateFilter(); // Refresh with current filter
+        renderUtilization();
       } else {
         showToast('Update failed', true);
       }
@@ -79,28 +173,68 @@ function renderTable() {
 
 /* ---------- Utilization Bars ---------- */
 function renderUtilization() {
-  const occ = {};
+  // Create a map of class_id + date -> counts
+  const occByClassDate = {};
+  
   for (const c of classes) {
-    occ[c.id] = { title: c.title, time: c.time, capacity: c.capacity, count: 0 };
-  }
-  for (const b of bookings) {
-    if (b.status === 'pending' || b.status === 'confirmed') {
-      if (occ[b.class_id]) occ[b.class_id].count += 1;
+    for (const b of filteredBookings) {
+      if (b.class_id === c.id) {
+        const key = `${c.id}_${b.date}`;
+        if (!occByClassDate[key]) {
+          occByClassDate[key] = { 
+            classId: c.id,
+            title: c.title, 
+            date: b.date,
+            capacity: c.capacity, 
+            count: 0 
+          };
+        }
+        if (b.status === 'pending' || b.status === 'confirmed') {
+          occByClassDate[key].count += 1;
+        }
+      }
     }
   }
+  
+  // Get unique classes that have bookings
+  const classesWithBookings = {};
+  Object.values(occByClassDate).forEach(item => {
+    if (!classesWithBookings[item.classId]) {
+      classesWithBookings[item.classId] = {
+        title: item.title,
+        capacity: item.capacity,
+        totalBooked: 0,
+        dates: []
+      };
+    }
+    classesWithBookings[item.classId].totalBooked += item.count;
+    classesWithBookings[item.classId].dates.push({
+      date: item.date,
+      count: item.count
+    });
+  });
 
   utilizationDiv.innerHTML = '';
-  Object.values(occ).forEach(o => {
-    const pct = o.capacity ? Math.min(100, Math.round((o.count / o.capacity) * 100)) : 0;
+  
+  if (Object.keys(classesWithBookings).length === 0) {
+    utilizationDiv.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px;">No bookings in selected date range</p>';
+    return;
+  }
+  
+  Object.values(classesWithBookings).forEach(o => {
+    const avgPct = o.dates.length > 0 
+      ? Math.round((o.totalBooked / (o.capacity * o.dates.length)) * 100)
+      : 0;
+    
     const wrap = document.createElement('div');
     wrap.style.margin = '12px 0';
     wrap.innerHTML = `
       <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
         <strong style="color:var(--text);">${o.title}</strong>
-        <span style="color:var(--text-soft);font-size:14px;">${o.count}/${o.capacity}</span>
+        <span style="color:var(--text-soft);font-size:14px;">${o.totalBooked} bookings across ${o.dates.length} date${o.dates.length === 1 ? '' : 's'}</span>
       </div>
       <div style="height:10px;background:var(--bg-alt);border-radius:10px;overflow:hidden;">
-        <div style="height:10px;width:${pct}%;background:linear-gradient(90deg,var(--sage),var(--accent-soft));transition:width 0.3s ease;"></div>
+        <div style="height:10px;width:${avgPct}%;background:linear-gradient(90deg,var(--sage),var(--accent-soft));transition:width 0.3s ease;"></div>
       </div>`;
     utilizationDiv.appendChild(wrap);
   });
@@ -108,6 +242,7 @@ function renderUtilization() {
 
 /* ---------- Weekly Heatmap ---------- */
 function renderHeatmap() {
+  // For heatmap, we'll show a weekly template based on filtered bookings
   const timeSet = new Set(classes.map(c => c.time).filter(Boolean));
   const timeRows = Array.from(timeSet).sort((a, b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
   const numRows = timeRows.length;
@@ -116,16 +251,17 @@ function renderHeatmap() {
   const classByKey = {};
   for (const c of classes) {
     const key = `${c.weekday}_${c.time}`;
-    if (!classByKey[key]) classByKey[key] = { capacity: 0, count: 0, title: c.title };
+    if (!classByKey[key]) classByKey[key] = { capacity: 0, count: 0, title: c.title, classId: c.id };
     classByKey[key].capacity += Number(c.capacity || 0);
   }
 
-  for (const b of bookings) {
+  // Count bookings by weekday/time across all dates in range
+  for (const b of filteredBookings) {
     if (b.status === 'pending' || b.status === 'confirmed') {
       const cls = classById(b.class_id);
       if (cls && cls.time != null && typeof cls.weekday === 'number') {
         const key = `${cls.weekday}_${cls.time}`;
-        if (!classByKey[key]) classByKey[key] = { capacity: 0, count: 0, title: cls.title };
+        if (!classByKey[key]) classByKey[key] = { capacity: 0, count: 0, title: cls.title, classId: cls.id };
         classByKey[key].count += 1;
       }
     }
@@ -184,7 +320,7 @@ function renderHeatmap() {
     if (!capacity) return `${label}\nNo class`;
     const pct = Math.round((ratio || 0) * 100);
     const t = title ? `\n${title}` : '';
-    return `${label}${t}\n${count}/${capacity} filled (${pct}%)`;
+    return `${label}${t}\n${count} total bookings / ${capacity} capacity (avg ${pct}%)`;
   }
 
   // Cells
@@ -257,12 +393,12 @@ function renderHeatmap() {
   };
 
   const left = document.createElement('span');
-  left.textContent = '0%';
+  left.textContent = 'Low';
   left.style.color = 'var(--muted)';
   left.style.fontSize = '12px';
 
   const right = document.createElement('span');
-  right.textContent = '100%';
+  right.textContent = 'High';
   right.style.color = 'var(--muted)';
   right.style.fontSize = '12px';
 
@@ -413,14 +549,10 @@ function deleteClass(id) {
 /* ---------- Fetch Data & Initial Render ---------- */
 async function fetchAll() {
   try {
-    const [clsRes, bRes] = await Promise.all([
-      fetch('/api/classes'),
-      fetch('/api/bookings')
-    ]);
+    const clsRes = await fetch('/api/classes');
     classes = await clsRes.json();
-    bookings = await bRes.json();
-    renderTable();
-    renderUtilization();
+    
+    renderDateRangeFilter();
     renderHeatmap();
     renderClassesManagement();
   } catch (err) {

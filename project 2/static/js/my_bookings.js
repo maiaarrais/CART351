@@ -25,6 +25,25 @@ function fmtDate(iso) {
   return d.toLocaleString();
 }
 
+function fmtDateOnly(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+}
+
+function isPastDate(dateStr) {
+  if (!dateStr) return false;
+  const bookingDate = new Date(dateStr + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return bookingDate < today;
+}
+
 function classById(id) {
   return classes.find(c => c.id === id) || {};
 }
@@ -72,43 +91,77 @@ async function lookupBookings() {
 function renderBookings() {
   bookingsList.innerHTML = '';
 
-  // Sort by timestamp, newest first
-  userBookings.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
+  // Group bookings: upcoming vs past
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const upcoming = userBookings.filter(b => !isPastDate(b.date));
+  const past = userBookings.filter(b => isPastDate(b.date));
 
-  userBookings.forEach(booking => {
-    const cls = classById(booking.class_id);
-    const card = document.createElement('div');
-    card.className = 'panel';
-    card.style.marginBottom = '16px';
+  // Sort upcoming by date ascending, past by date descending
+  upcoming.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  past.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-    const statusClass = booking.status;
-    const canCancel = ['pending', 'confirmed', 'waitlist'].includes(booking.status);
+  if (upcoming.length > 0) {
+    const upcomingHeader = document.createElement('h4');
+    upcomingHeader.textContent = 'Upcoming Classes';
+    upcomingHeader.style.marginTop = '0';
+    upcomingHeader.style.marginBottom = '12px';
+    upcomingHeader.style.color = 'var(--text)';
+    bookingsList.appendChild(upcomingHeader);
+    
+    upcoming.forEach(booking => renderBookingCard(booking, false));
+  }
 
-    card.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-        <div>
-          <h4 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 600;">${cls.title || 'Unknown Class'}</h4>
-          <div style="color: var(--text-soft); font-size: 14px; margin-bottom: 8px;">
-            ${cls.weekday !== undefined ? fmtWeekday(cls.weekday) : ''} ${cls.time || ''} • Booked ${fmtDate(booking.ts)}
-          </div>
+  if (past.length > 0) {
+    const pastHeader = document.createElement('h4');
+    pastHeader.textContent = 'Past Classes';
+    pastHeader.style.marginTop = upcoming.length > 0 ? '32px' : '0';
+    pastHeader.style.marginBottom = '12px';
+    pastHeader.style.color = 'var(--muted)';
+    bookingsList.appendChild(pastHeader);
+    
+    past.forEach(booking => renderBookingCard(booking, true));
+  }
+}
+
+function renderBookingCard(booking, isPast) {
+  const cls = classById(booking.class_id);
+  const card = document.createElement('div');
+  card.className = 'panel';
+  card.style.marginBottom = '16px';
+  
+  if (isPast) {
+    card.style.opacity = '0.6';
+  }
+
+  const statusClass = booking.status;
+  const canCancel = ['pending', 'confirmed', 'waitlist'].includes(booking.status) && !isPast;
+
+  card.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+      <div>
+        <h4 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 600;">${cls.title || 'Unknown Class'}</h4>
+        <div style="color: var(--text-soft); font-size: 14px; margin-bottom: 8px;">
+          ${fmtDateOnly(booking.date)} at ${cls.time || ''}
         </div>
-        <span class="status ${statusClass}">${booking.status}</span>
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="color: var(--muted); font-size: 13px;">
-          <strong>${booking.name}</strong> • ${booking.email}
-        </div>
-        ${canCancel ? `<button class="btn-light btn-compact" data-booking-id="${booking.id}">Cancel Booking</button>` : ''}
+      <span class="status ${statusClass}">${booking.status}</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="color: var(--muted); font-size: 13px;">
+        <strong>${booking.name}</strong> • Booked ${fmtDate(booking.ts)}
       </div>
-    `;
+      ${canCancel ? `<button class="btn-light btn-compact" data-booking-id="${booking.id}">Cancel</button>` : ''}
+    </div>
+  `;
 
-    if (canCancel) {
-      const cancelBtn = card.querySelector('[data-booking-id]');
-      cancelBtn.addEventListener('click', () => cancelBooking(booking.id));
-    }
+  if (canCancel) {
+    const cancelBtn = card.querySelector('[data-booking-id]');
+    cancelBtn.addEventListener('click', () => cancelBooking(booking.id));
+  }
 
-    bookingsList.appendChild(card);
-  });
+  bookingsList.appendChild(card);
 }
 
 async function cancelBooking(bookingId) {

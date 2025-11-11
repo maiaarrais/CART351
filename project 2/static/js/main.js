@@ -30,7 +30,62 @@ let bookings = [];
 let viewMode = 'grid';
 let searchText = '';
 let type = 'all';
-let weekOffset = 0;
+let weekOffset = 0; // 0 = current week, 1 = next week, -1 = last week
+
+/* ---------- Date Utils ---------- */
+function getMonday(d) {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(date.setDate(diff));
+}
+
+function getWeekDates(offset = 0) {
+  const today = new Date();
+  today.setDate(today.getDate() + (offset * 7));
+  const monday = getMonday(today);
+  
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    dates.push(date);
+  }
+  return dates;
+}
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatDateDisplay(date) {
+  return date.toLocaleDateString(undefined, { 
+    weekday: 'short', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+}
+
+function isToday(date) {
+  const today = new Date();
+  return date.toDateString() === today.toDateString();
+}
+
+function isPast(date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
+}
+
+function isTooFarAhead(date) {
+  const today = new Date();
+  const maxDate = new Date(today);
+  maxDate.setDate(today.getDate() + 28); // 4 weeks
+  return date > maxDate;
+}
 
 /* ---------- Utils ---------- */
 function showToast(msg, isError = false) {
@@ -52,12 +107,14 @@ function timeToMin(t) {
   return h * 60 + (m || 0);
 }
 
-function seatsRemaining(classId) {
+function seatsRemaining(classId, date) {
   const cls = classes.find(c => c.id === classId);
   if (!cls) return 0;
   const capacity = cls.capacity || 0;
   const occupied = bookings.filter(b =>
-    b.class_id === classId && (b.status === 'pending' || b.status === 'confirmed')
+    b.class_id === classId && 
+    b.date === date &&
+    (b.status === 'pending' || b.status === 'confirmed')
   ).length;
   return Math.max(0, capacity - occupied);
 }
@@ -81,13 +138,9 @@ function classMatches(c) {
 
 /* ---------- Week label ---------- */
 function currentWeekLabel() {
-  const base = new Date();
-  base.setDate(base.getDate() + weekOffset * 7);
-  const monday = new Date(base);
-  const day = (base.getDay() + 6) % 7;
-  monday.setDate(base.getDate() - day);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
+  const dates = getWeekDates(weekOffset);
+  const monday = dates[0];
+  const sunday = dates[6];
   const fmt = d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   return `${fmt(monday)} — ${fmt(sunday)}`;
 }
@@ -114,11 +167,26 @@ function skeletonCalendar() {
 
 function renderCalendarGrid() {
   calendarEl.innerHTML = '';
-  const cols = new Array(7).fill(null).map((_, i) => {
+  const weekDates = getWeekDates(weekOffset);
+  
+  const cols = weekDates.map((date, i) => {
     const col = document.createElement('div');
     col.className = 'day-col';
+    
+    // Date header with indicator
     const h = document.createElement('h4');
-    h.textContent = fmtWeekday(i);
+    const dayName = fmtWeekday(i);
+    const dayNum = date.getDate();
+    
+    if (isToday(date)) {
+      h.innerHTML = `${dayName} <span style="color:var(--sage);font-weight:700;">${dayNum}</span> <span style="font-size:9px;background:var(--sage);color:white;padding:2px 6px;border-radius:10px;margin-left:4px;">TODAY</span>`;
+    } else if (isPast(date)) {
+      h.innerHTML = `${dayName} <span style="color:var(--muted);">${dayNum}</span>`;
+      col.style.opacity = '0.5';
+    } else {
+      h.innerHTML = `${dayName} <span style="color:var(--text-soft);">${dayNum}</span>`;
+    }
+    
     col.appendChild(h);
     calendarEl.appendChild(col);
     return col;
@@ -126,13 +194,38 @@ function renderCalendarGrid() {
 
   classes.filter(classMatches).sort(byWeekday).forEach(c => {
     const col = cols[c.weekday % 7];
+    const date = weekDates[c.weekday % 7];
+    const dateStr = formatDate(date);
+    const past = isPast(date);
+    const tooFar = isTooFarAhead(date);
+    
     const slot = document.createElement('div');
     slot.className = 'slot';
-    const remain = seatsRemaining(c.id);
+    
+    if (past || tooFar) {
+      slot.classList.add('full');
+      slot.style.cursor = 'not-allowed';
+    }
+    
+    const remain = seatsRemaining(c.id, dateStr);
     const nearFull = remain <= 2 && remain > 0;
-    if (remain === 0) slot.classList.add('full');
+    if (remain === 0 && !past && !tooFar) slot.classList.add('full');
 
     const pct = c.capacity > 0 ? Math.round(((c.capacity - remain) / c.capacity) * 100) : 0;
+    
+    let statusText = '';
+    if (past) {
+      statusText = '<span class="pill danger">Past</span>';
+    } else if (tooFar) {
+      statusText = '<span class="pill danger">Too far</span>';
+    } else if (remain === 0) {
+      statusText = '<span class="pill danger">Full</span>';
+    } else if (nearFull) {
+      statusText = `<span class="pill warn">${remain} left</span>`;
+    } else {
+      statusText = `<span class="pill">${remain} seats</span>`;
+    }
+    
     slot.innerHTML = `
       <div class="slot-top">
         <div>
@@ -144,14 +237,13 @@ function renderCalendarGrid() {
         </div>
       </div>
       <div class="slot-bottom">
-        <span class="pill ${nearFull ? 'warn' : ''} ${remain === 0 ? 'danger' : ''}">
-          ${remain === 0 ? 'Full' : nearFull ? `${remain} left` : `${remain} seats`}
-        </span>
+        ${statusText}
         <span class="tag">${inferType(c.title)}</span>
       </div>
     `;
-    if (remain > 0) {
-      slot.addEventListener('click', () => openModal(c, remain));
+    
+    if (!past && !tooFar && remain > 0) {
+      slot.addEventListener('click', () => openModal(c, remain, date, dateStr));
     }
     col.appendChild(slot);
   });
@@ -161,28 +253,54 @@ function renderAgenda() {
   agendaEl.innerHTML = '';
   const list = document.createElement('div');
   list.className = 'agenda-list';
+  
+  const weekDates = getWeekDates(weekOffset);
+  
   classes.filter(classMatches).sort(byWeekday).forEach(c => {
-    const remain = seatsRemaining(c.id);
+    const date = weekDates[c.weekday % 7];
+    const dateStr = formatDate(date);
+    const past = isPast(date);
+    const tooFar = isTooFarAhead(date);
+    
+    const remain = seatsRemaining(c.id, dateStr);
     const nearFull = remain <= 2 && remain > 0;
     const pct = c.capacity > 0 ? Math.round(((c.capacity - remain) / c.capacity) * 100) : 0;
+    
     const row = document.createElement('div');
     row.className = 'agenda-row';
+    
+    if (past || tooFar) {
+      row.style.opacity = '0.5';
+    }
+    
+    let statusText = '';
+    if (past) {
+      statusText = '<span class="pill danger">Past</span>';
+    } else if (tooFar) {
+      statusText = '<span class="pill danger">Too far</span>';
+    } else if (remain === 0) {
+      statusText = '<span class="pill danger">Full</span>';
+    } else if (nearFull) {
+      statusText = `<span class="pill warn">${remain} left</span>`;
+    } else {
+      statusText = `<span class="pill">${remain} seats</span>`;
+    }
+    
     row.innerHTML = `
       <div class="ag-left">
-        <div class="ag-time">${fmtWeekday(c.weekday)} ${c.time}</div>
+        <div class="ag-time">${formatDateDisplay(date)} ${c.time}</div>
         <div class="ag-title">${c.title}</div>
       </div>
       <div class="ag-right">
         <div class="meter"><div class="meter-fill" style="width:${pct}%"></div></div>
-        <span class="pill ${nearFull ? 'warn' : ''} ${remain === 0 ? 'danger' : ''}">
-          ${remain === 0 ? 'Full' : nearFull ? `${remain} left` : `${remain} seats`}
-        </span>
-        <button class="btn btn-compact" ${remain === 0 ? 'disabled' : ''}>Book</button>
+        ${statusText}
+        <button class="btn btn-compact" ${(past || tooFar || remain === 0) ? 'disabled' : ''}>Book</button>
       </div>
     `;
+    
     const bookBtn = row.querySelector('button');
-    if (remain > 0) {
-      bookBtn.addEventListener('click', () => openModal(c, remain));
+    if (!past && !tooFar && remain > 0) {
+      bookBtn.addEventListener('click', () => openModal(c, remain, date, dateStr));
     }
     list.appendChild(row);
   });
@@ -191,6 +309,19 @@ function renderAgenda() {
 
 function render() {
   weekLabel.textContent = currentWeekLabel();
+  
+  // Disable prev week if it would go to past
+  const weekDates = getWeekDates(weekOffset - 1);
+  const allPast = weekDates.every(d => isPast(d));
+  prevWeek.disabled = allPast;
+  prevWeek.style.opacity = allPast ? '0.3' : '1';
+  
+  // Disable next week if it would go beyond 4 weeks
+  const nextWeekDates = getWeekDates(weekOffset + 1);
+  const allTooFar = nextWeekDates.every(d => isTooFarAhead(d));
+  nextWeek.disabled = allTooFar;
+  nextWeek.style.opacity = allTooFar ? '0.3' : '1';
+  
   if (viewMode === 'grid') {
     calendarEl.classList.remove('hidden');
     agendaEl.classList.add('hidden');
@@ -203,16 +334,18 @@ function render() {
 }
 
 /* ---------- Modal / Booking ---------- */
-function getEl(id) {
-  return document.getElementById(id);
-}
+let currentBookingDate = null;
 
-function openModal(cls, remain) {
+function openModal(cls, remain, date, dateStr) {
   // Reset form
   formEl.reset();
-  getEl('class_id').value = cls.id;
+  currentBookingDate = dateStr;
+  
+  document.getElementById('class_id').value = cls.id;
+  document.getElementById('booking_date').value = dateStr;
+  
   modalTitle.textContent = cls.title;
-  modalMeta.textContent = `${fmtWeekday(cls.weekday)} • ${cls.time} • ${remain} seat${remain === 1 ? '' : 's'} available`;
+  modalMeta.textContent = `${formatDateDisplay(date)} • ${cls.time} • ${remain} seat${remain === 1 ? '' : 's'} available`;
 
   // Show booking form, hide confirmation
   stepDetails.classList.remove('hidden');
@@ -238,11 +371,12 @@ cancelBtn?.addEventListener('click', (e) => {
 formEl?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const class_id = getEl('class_id').value;
-  const name = getEl('name').value.trim();
-  const email = getEl('email').value.trim();
+  const class_id = document.getElementById('class_id').value;
+  const date = document.getElementById('booking_date').value;
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
 
-  if (!class_id || !name || !email) {
+  if (!class_id || !date || !name || !email) {
     showToast('Please fill in all fields', true);
     return;
   }
@@ -255,7 +389,7 @@ formEl?.addEventListener('submit', async (e) => {
     const res = await fetch('/api/book', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ class_id, name, email })
+      body: JSON.stringify({ class_id, date, name, email })
     });
 
     const data = await res.json();
@@ -284,7 +418,10 @@ formEl?.addEventListener('submit', async (e) => {
       : 'Your spot is reserved. We\'ll send you a confirmation email shortly.';
 
     // ICS button
-    icsBtn.onclick = () => downloadICSForClass(classById(class_id));
+    icsBtn.onclick = () => {
+      const cls = classes.find(c => c.id === class_id);
+      downloadICSForClass(cls, date);
+    };
   } catch (err) {
     console.error('Booking error:', err);
     showToast('Network error. Please check your connection.', true);
@@ -298,37 +435,22 @@ closeBtn?.addEventListener('click', () => {
   dialogEl.close();
 });
 
-function classById(id) {
-  return classes.find(c => c.id === id);
-}
-
 /* ---------- ICS export ---------- */
-function nextOccurrence(weekday, timeStr, durationMins = 60) {
-  const now = new Date();
-  const [hh, mm] = timeStr.split(':').map(Number);
-  const delta = ((weekday - now.getDay() + 7) % 7) || 0;
-  const start = new Date(now);
-  start.setDate(now.getDate() + delta);
-  start.setHours(hh, mm || 0, 0, 0);
-
-  if (delta === 0 && start <= now) {
-    start.setDate(start.getDate() + 7);
-  }
-
-  const end = new Date(start.getTime() + durationMins * 60000);
+function downloadICSForClass(cls, dateStr) {
+  if (!cls || !dateStr) return;
+  
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const [hh, mm] = cls.time.split(':').map(Number);
+  
+  const start = new Date(year, month - 1, day, hh, mm || 0);
+  const end = new Date(start.getTime() + 60 * 60000); // 1 hour duration
+  
   const pad = n => String(n).padStart(2, '0');
   const fmt = d =>
     `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 
-  return { startLocal: fmt(start), endLocal: fmt(end) };
-}
-
-function downloadICSForClass(cls) {
-  if (!cls) return;
-  const { startLocal, endLocal } = nextOccurrence(cls.weekday, cls.time);
-  const uid = `${cls.id}-${Date.now()}@flowstudio`;
+  const uid = `${cls.id}-${dateStr}-${Date.now()}@flowstudio`;
   const now = new Date();
-  const pad = n => String(n).padStart(2, '0');
   const timestamp = `${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
 
   const body = [
@@ -338,8 +460,8 @@ function downloadICSForClass(cls) {
     'BEGIN:VEVENT',
     `UID:${uid}`,
     `DTSTAMP:${timestamp}`,
-    `DTSTART:${startLocal}`,
-    `DTEND:${endLocal}`,
+    `DTSTART:${fmt(start)}`,
+    `DTEND:${fmt(end)}`,
     `SUMMARY:${cls.title}`,
     'DESCRIPTION:Class booked via Flow Studio',
     'LOCATION:Flow Studio',
@@ -350,7 +472,7 @@ function downloadICSForClass(cls) {
   const blob = new Blob([body], { type: 'text/calendar;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `${cls.title.replace(/\s+/g, '_')}.ics`;
+  a.download = `${cls.title.replace(/\s+/g, '_')}_${dateStr}.ics`;
   document.body.appendChild(a);
   a.click();
   a.remove();
