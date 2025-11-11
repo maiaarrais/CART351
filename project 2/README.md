@@ -44,7 +44,7 @@ In future iterations, I’d like to:
 - **Data Storage:** JSON files (`classes.json`, `bookings.json`)  
 - **Templating:** Jinja  
 - **Requests:** Fetch API (GET + POST)  
-- **Visuals:** Custom UI with gradient theme, meters, and agenda/grid views  
+- **Visuals:** Custom UI with gradient theme, meters, and agenda/grid views. The image outputs are in the outputs folder (static/outputs)
 
 ---
 
