@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="hero">
+    <h1>My Bookings</h1>
+    <p>View and manage your class reservations</p>
+  </section>
+
+  <section class="panel">
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 8px;">Enter your email to view bookings</label>
+      <div style="display: flex; gap: 12px; max-width: 500px;">
+        <input type="email" id="emailLookup" class="input" placeholder="your@email.com" style="flex: 1;" />
+        <button id="lookupBtn" class="btn">Find Bookings</button>
+      </div>
+    </div>
+
+    <div id="bookingsContainer" class="hidden">
+      <h3 style="margin-top: 24px; margin-bottom: 16px;">Your Reservations</h3>
+      <div id="bookingsList"></div>
+    </div>
+
+    <div id="noBookings" class="hidden" style="text-align: center; padding: 40px; color: var(--muted);">
+      <p>No bookings found for this email address.</p>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/my_bookings.js') }}"></script>
+{% endblock %}

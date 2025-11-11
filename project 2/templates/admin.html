@@ -1,29 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="hero">
-    <h1>Admin Dashboard</h1>
-    <p>Manage bookings and track utilization.</p>
+    <h1>Studio Dashboard</h1>
+    <p>Manage bookings, track capacity, and oversee your classes</p>
   </section>
 
   <section class="admin-panels">
     <div class="panel">
-      <h3>Bookings</h3>
-      <table class="table" id="bookingsTable">
-        <thead>
-          <tr><th>Time</th><th>Class</th><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <h3>Recent Bookings</h3>
+      <div style="overflow-x: auto;">
+        <table class="table" id="bookingsTable">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Class</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
+
     <div class="panel">
-      <h3>Utilization</h3>
+      <h3>Class Utilization</h3>
       <div id="utilization"></div>
     </div>
+
     <div class="panel">
       <h3>Weekly Heatmap</h3>
-      <p style="color:var(--muted);margin-top:0;">Intensity shows fill rate (pending+confirmed / capacity) for each weekday/time slot.</p>
+      <p style="color:var(--text-soft);margin-top:0;font-size:14px;">
+        Intensity shows fill rate (pending + confirmed / capacity) for each weekday/time slot
+      </p>
       <div id="heatmap" style="overflow:auto;"></div>
-      <div id="heatmapLegend" style="margin-top:8px;font-size:12px;color:var(--muted);"></div>
+      <div id="heatmapLegend"></div>
+    </div>
+
+    <div class="panel" id="classesManagement">
+      <!-- Populated by JS -->
     </div>
   </section>
 {% endblock %}

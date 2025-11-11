@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="hero">
-    <h1>Book a Class</h1>
-    <p>Pick a time slot below. Seats update live as people book.</p>
+    <h1>Find Your Balance</h1>
+    <p>Reserve your space in our mindful movement classes</p>
   </section>
 
   <!-- Controls -->
   <section class="controls">
     <div class="left">
-      <button class="btn-light icon-btn" id="prevWeek" title="Previous week">⟨</button>
+      <button class="btn-light icon-btn" id="prevWeek" title="Previous week">‹</button>
       <div class="week-label" id="weekLabel">This Week</div>
-      <button class="btn-light icon-btn" id="nextWeek" title="Next week">⟩</button>
+      <button class="btn-light icon-btn" id="nextWeek" title="Next week">›</button>
     </div>
     <div class="right">
-      <input id="searchInput" class="input" type="text" placeholder="Search class or time…" />
+      <input id="searchInput" class="input" type="text" placeholder="Search classes..." />
       <select id="typeFilter" class="select">
         <option value="all">All types</option>
         <option value="pilates">Pilates</option>
@@ -21,7 +21,7 @@
       </select>
       <div class="segmented">
         <button id="viewGrid" class="seg active">Grid</button>
-        <button id="viewAgenda" class="seg">Agenda</button>
+        <button id="viewAgenda" class="seg">List</button>
       </div>
     </div>
   </section>
@@ -29,38 +29,36 @@
   <section id="calendar" class="calendar"></section>
   <section id="agenda" class="agenda hidden"></section>
 
-  
-
   <!-- Booking Modal -->
   <dialog id="bookDialog">
-    <form id="bookForm" method="dialog" class ="modal-form">
-      <h3 id="modalTitle">Reserve Spot</h3>
+    <form id="bookForm" class="modal-form">
+      <h3 id="modalTitle">Reserve Your Spot</h3>
       <input type="hidden" name="class_id" id="class_id" />
       <div id="modalMeta" class="meta-line"></div>
 
       <div id="stepDetails">
         <label>Your Name
-          <input type="text" id="name" required />
+          <input type="text" id="name" required autocomplete="name" />
         </label>
-        <label>Email
-          <input type="email" id="email" required />
+        <label>Email Address
+          <input type="email" id="email" required autocomplete="email" />
         </label>
       </div>
 
       <div id="stepConfirm" class="hidden">
         <div class="success-box">
-          <div class="success-title">You’re in! <span id="confirmBadge" class="pill"></span></div>
+          <div class="success-title">Booking Received <span id="confirmBadge" class="pill"></span></div>
           <p id="confirmCopy" class="muted"></p>
           <div class="confirm-actions">
-            <button id="icsBtn" type="button" class="btn-light">Add to Calendar (.ics)</button>
+            <button id="icsBtn" type="button" class="btn-light">Add to Calendar</button>
             <button id="closeBtn" type="button" class="btn">Done</button>
           </div>
         </div>
       </div>
 
-      <div class="modal-actions">
-        <button value="cancel" class="btn btn-light">Cancel</button>
-        <button id="submitBooking" class="btn">Book</button>
+      <div class="modal-actions" id="modalActions">
+        <button type="button" id="cancelBtn" class="btn btn-light">Cancel</button>
+        <button type="submit" id="submitBooking" class="btn">Reserve Spot</button>
       </div>
     </form>
   </dialog>
