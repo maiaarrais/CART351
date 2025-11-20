@@ -50,5 +50,41 @@
     "email": "maiacamilaarrais@gmail.com",
     "status": "confirmed",
     "ts": "2025-11-11T04:27:30.420383Z"
+  },
+  {
+    "id": "b_71fad919e414",
+    "class_id": "pilates-mon-1800",
+    "date": "2025-11-18",
+    "name": "maia",
+    "email": "maiacarrais@gmail.com",
+    "status": "pending",
+    "ts": "2025-11-17T20:06:43.269109Z"
+  },
+  {
+    "id": "b_b8d5aa2ff326",
+    "class_id": "yoga-tue-1900",
+    "date": "2025-11-19",
+    "name": "Ethan",
+    "email": "123@gmail.com",
+    "status": "confirmed",
+    "ts": "2025-11-17T20:13:52.303942Z"
+  },
+  {
+    "id": "b_2d50b3b51ea3",
+    "class_id": "pilates-wed-1830",
+    "date": "2025-11-20",
+    "name": "olivia",
+    "email": "fakemail@live.ca",
+    "status": "pending",
+    "ts": "2025-11-17T20:18:31.534774Z"
+  },
+  {
+    "id": "b_7f927d8b6637",
+    "class_id": "pilates-wed-1830",
+    "date": "2025-11-20",
+    "name": "julia",
+    "email": "julia@gmail.com",
+    "status": "cancelled",
+    "ts": "2025-11-17T20:22:17.116658Z"
   }
 ]
