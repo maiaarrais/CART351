@@ -28,7 +28,7 @@ db_name = os.getenv('DATABASE_NAME')
 
 app = Flask(__name__)
 
-uri = f"mongodb+srv://{db_user}:{db_pass}@cluster0.n0do9xq.mongodb.net/{db_name}?retryWrites=true&w=majority"
+uri = "mongodb+srv://cart351user:Cart351pass123@cluster0.5zmxfoi.mongodb.net/cart351?appName=Cluster0"
  # Replace with your MongoDB Atlas connection string
 app.config["MONGO_URI"] = uri
 mongo = PyMongo(app)
