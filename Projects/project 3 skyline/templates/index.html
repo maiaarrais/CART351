@@ -1,0 +1,111 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rising Bar City</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <main id="app">
+
+    <!-- Multi-step questionnaire -->
+    <section id="questionnaire-section">
+      <div id="step-1" class="question-step">
+        <h1>What is your main focus this week?</h1>
+        <p>Select one area.</p>
+        <div id="category-choices">
+          <button data-category="school">School</button>
+          <button data-category="work">Work & Money</button>
+          <button data-category="relationships">Relationships</button>
+          <button data-category="health">Health</button>
+          <button data-category="creativity">Creativity</button>
+          <button data-category="rest">Rest</button>
+        </div>
+        <button id="to-step-2" disabled>Next</button>
+      </div>
+
+      <div id="step-2" class="question-step hidden">
+        <h1>What will you do to achieve this?</h1>
+        <textarea id="goal-input" rows="3" placeholder="Example: Study 1 hour every evening"></textarea>
+        <div class="step-nav">
+          <button class="back-btn" data-back="1">Back</button>
+          <button id="to-step-3">Next</button>
+        </div>
+      </div>
+
+      <div id="step-3" class="question-step hidden">
+        <h1>What do you need to change to make this possible?</h1>
+        <textarea id="change-input" rows="3" placeholder="Example: Go to bed earlier, reduce phone time"></textarea>
+        <div class="step-nav">
+          <button class="back-btn" data-back="2">Back</button>
+          <button id="to-step-4">Next</button>
+        </div>
+      </div>
+
+      <div id="step-4" class="question-step hidden">
+        <h1>How confident do you feel for achieving this goal? (1–5)</h1>
+        <div id="confidence-choices">
+          <button data-conf="1">1</button>
+          <button data-conf="2">2</button>
+          <button data-conf="3">3</button>
+          <button data-conf="4">4</button>
+          <button data-conf="5">5</button>
+        </div>
+        <div class="step-nav">
+          <button class="back-btn" data-back="3">Back</button>
+          <button id="submit-entry" disabled>Submit</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Confirmation screen -->
+    <section id="confirmation-section" class="hidden">
+      <h2>Your window has been added to the city.</h2>
+      <button id="view-city-btn">View the City</button>
+    </section>
+
+    <!-- Skyline visualization -->
+    <section id="city-section" class="hidden">
+      <div id="skyline">
+        <!-- Buildings will be defined in HTML and populated by JS -->
+        <div class="building" data-category="school">
+          <div class="building-name">Study Spire</div>
+          <div class="windows-grid"></div>
+        </div>
+
+        <div class="building" data-category="work">
+          <div class="building-name">Hustle Tower</div>
+          <div class="windows-grid"></div>
+        </div>
+
+        <div class="building" data-category="relationships">
+          <div class="building-name">Connection Block</div>
+          <div class="windows-grid"></div>
+        </div>
+
+        <div class="building" data-category="health">
+          <div class="building-name">Vitality Core</div>
+          <div class="windows-grid"></div>
+        </div>
+
+        <div class="building" data-category="creativity">
+          <div class="building-name">Neon Studio</div>
+          <div class="windows-grid"></div>
+        </div>
+
+        <div class="building" data-category="rest">
+          <div class="building-name">Dream Suites</div>
+          <div class="windows-grid"></div>
+        </div>
+      </div>
+
+      <!-- Tooltip container for hover details -->
+      <div id="tooltip" class="hidden"></div>
+    </section>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
