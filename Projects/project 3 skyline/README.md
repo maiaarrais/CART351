@@ -77,7 +77,7 @@ This pacing encourages mindful participation rather than rushed input. The progr
 
 ### Tooltips
 
-Hovering over a building reveals a small selection of recent anonymous responses. This maintains privacy while letting users feel the collective presence of others. The tooltips are carefully designed to show just enough to spark recognition or empathy without overwhelming the viewer. They create moments of connection—users might see someone else struggling with the same challenge they face, or they might discover a new approach to their own goals. These brief glimpses into others' intentions transform the skyline from an abstract visualization into a genuinely human space.
+Hovering over a building reveals a small selection of recent anonymous responses. This maintains privacy while letting users feel the collective presence of others. The tooltips are carefully designed to show just enough to spark recognition or empathy without overwhelming the viewer. They create moments of connection, users might see someone else struggling with the same challenge they face, or they might discover a new approach to their own goals. These brief glimpses into others' intentions transform the skyline from an abstract visualization into a genuinely human space.
 
 ---
 
@@ -146,4 +146,4 @@ Through this project, I learned that networked spaces can be gentle, that data c
 
 ---
 
-*Built with Flask, MongoDB, JavaScript, and hope.*
+*Built with Flask, MongoDB, JavaScript, Python. Comments and code organization were done with the help of AI*
