@@ -1,49 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>CART 351 Page</title>
+  <title>CART 351 – Maia Arrais</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-    <!-- the header div -->
-  <header>
-    <h2>CART351 Fall 2025</h2>
-    <h3> Maia Arrais</h3>
-      <h4> My github repo for CART 351 <a href = "https://github.com/maiaarrais/CART351/tree/main">link</a></h4>
-    <p>Below is a list of links to the exercises and projects.</p>
-  <header>
-  <!-- the main div -->
-  <main>
-  
-    <p> <a href = "journal.html">LINK TO JOURNAL</a> </p>
-  
-  <p> EXERCISES </p>
-    <ul>
-          <li><a href="#"> link to exercise 1:live:</a></li>
-          <li><a href="#"> link to exercise 2:live:</a></li>
-          <li><a href="#"> link to exercise xx :live:</a></li>
-      </ul>
-       <p> PROJECT I</p>
-      <ul>
-        <li><a href="#"> Project I download</a> </li>
-        <li><a href="#"> Project I :live:</a></li>
-        <li><a href="#"> Project I documentation:</a></li>
-      </ul>
-      <p> PROJECT II </p>
-      <ul>
-        <li><a href="#"> Project I download</a> </li>
-        <li><a href="#"> Project I :live:</a></li>
-        <li><a href="#"> Project I documentation:</a></li>
-      </ul>
-      <p> PROJECT III</p>
-      <ul>
-        <li><a href="#"> Project I download</a> </li>
-        <li><a href="#"> Project I :live:</a></li>
-        <li><a href="#"> Project I documentation:</a></li>
-      </ul>
-   
+  <div class="page-wrapper">
 
-</main>
+    <!-- HEADER -->
+    <header>
+      <h2>CART351 – Fall 2025</h2>
+      <h3>Maia Arrais</h3>
+      <h4>
+        GitHub repo for CART 351:
+        <a href="https://github.com/maiaarrais/CART351/tree/main" target="_blank">
+          View main repository
+        </a>
+      </h4>
+
+      <p class="header-intro">
+        Main hub for my CART 351 work: exercises, playful experiments, and larger
+        projects. Each card links to GitHub source code and documentation.
+      </p>
+
+      <div class="header-tags">
+        <span class="header-tag">web experiments</span>
+        <span class="header-tag">shared states</span>
+        <span class="header-tag">CART 351</span>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+      <!-- JOURNAL -->
+      <section>
+        <p class="section-title">Journal</p>
+        <div class="journal-link">
+          <a href="journal.html">
+            📓 <span>Process journal – reflections, tests, and screenshots</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- EXERCISES -->
+      <section>
+        <p class="section-title">Exercises</p>
+        <p class="section-caption">
+          Smaller sketches and technical tests built throughout the course.
+        </p>
+        <ul class="exercise-list">
+          <li>
+            <a href="#">Exercise 1 – Title of exercise (live)</a>
+          </li>
+          <li>
+            <a href="#">Exercise 2 – Title of exercise (live)</a>
+          </li>
+          <li>
+            <a href="#">Exercise X – Title of exercise (live)</a>
+          </li>
+        </ul>
+      </section>
+
+      <!-- PROJECTS -->
+      <section>
+        <p class="section-title">Projects</p>
+        <p class="section-caption">
+          Each project has space for a screenshot, a short description, GitHub code, and documentation.
+        </p>
+
+        <div class="project-grid">
+
+          <!-- PROJECT I CARD -->
+          <article class="project-card">
+            <div class="project-image-wrapper">
+              <!-- Replace src with your real screenshot -->
+              <img
+                src="images/project1-placeholder.jpg"
+                alt="Screenshot of Project I"
+                onerror="this.style.display='none'; this.parentNode.innerHTML='<span class=&quot;project-image-placeholder&quot;>Screenshot placeholder – add a Project I image here.</span>';"
+              >
+            </div>
+            <div class="project-content">
+              <div class="project-title">Project I – Title Goes Here</div>
+              <div class="project-meta">Interactive web project · CART351</div>
+
+              <p class="project-description">
+                Short description of Project I. For example: an interactive system that visualizes
+                daily moods and events as a playful, animated interface.
+              </p>
+
+              <div class="tag-row">
+                <span class="tag">HTML / CSS / JS</span>
+                <span class="tag">Interaction</span>
+              </div>
+
+              <div class="project-actions">
+                <a class="btn btn-github" href="#" target="_blank">
+                  ⧉ GitHub Source
+                </a>
+                <a class="btn btn-docs" href="#" target="_blank">
+                  📄 Documentation
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- PROJECT II CARD -->
+          <article class="project-card">
+            <div class="project-image-wrapper">
+              <img
+                src="images/project2-placeholder.jpg"
+                alt="Screenshot of Project II"
+                onerror="this.style.display='none'; this.parentNode.innerHTML='<span class=&quot;project-image-placeholder&quot;>Screenshot placeholder – add a Project II image here.</span>';"
+              >
+            </div>
+            <div class="project-content">
+              <div class="project-title">Project II – Title Goes Here</div>
+              <div class="project-meta">Shared states / networked experiment</div>
+
+              <p class="project-description">
+                Short description of Project II. For example: a shared online “skyline” where
+                each user adds their own window, building a collective environment.
+              </p>
+
+              <div class="tag-row">
+                <span class="tag">Shared states</span>
+                <span class="tag">Sockets / networking</span>
+              </div>
+
+              <div class="project-actions">
+                <a class="btn btn-github" href="#" target="_blank">
+                  ⧉ GitHub Source
+                </a>
+                <a class="btn btn-docs" href="#" target="_blank">
+                  📄 Documentation
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- PROJECT III CARD -->
+          <article class="project-card">
+            <div class="project-image-wrapper">
+              <img
+                src="images/project3-placeholder.jpg"
+                alt="Screenshot of Project III"
+                onerror="this.style.display='none'; this.parentNode.innerHTML='<span class=&quot;project-image-placeholder&quot;>Screenshot placeholder – add a Project III image here.</span>';"
+              >
+            </div>
+            <div class="project-content">
+              <div class="project-title">Project III – Title Goes Here</div>
+              <div class="project-meta">Final project · real-time / generative</div>
+
+              <p class="project-description">
+                Short description of Project III. For example: a browser-based piece that
+                plays with secrecy, hidden systems, or encryption-inspired visuals.
+              </p>
+
+              <div class="tag-row">
+                <span class="tag">Final project</span>
+                <span class="tag">Real-time</span>
+              </div>
+
+              <div class="project-actions">
+                <a class="btn btn-github" href="#" target="_blank">
+                  ⧉ GitHub Source
+                </a>
+                <a class="btn btn-docs" href="#" target="_blank">
+                  📄 Documentation
+                </a>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
 </body>
 </html>
