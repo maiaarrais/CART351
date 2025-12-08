@@ -70,14 +70,15 @@ header {
 header::after {
   content: "CART 351";
   position: absolute;
-  top: 14px;
-  right: -40px;
-  transform: rotate(12deg);
+  top: 5px;
+  width: 110px;
+  right: -35px;
+  transform: rotate(20deg);
   padding: 4px 40px;
-  font-size: 0.75rem;
+  font-size: 1rem;
   background: #ffb8d1;
   color: #402531;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   box-shadow: 0 4px 10px rgba(255, 155, 200, 0.6);
 }
@@ -262,7 +263,7 @@ main {
   left: -10px;
   width: 150px;
   height: 20px;
-  background: rgba(250, 11, 190, 0.8);
+  background: #ffb8d1;
   border-radius: 4px;
   transform: rotate(-20deg);
   box-shadow: 0 2px 4px rgba(180, 160, 100, 0.5);
