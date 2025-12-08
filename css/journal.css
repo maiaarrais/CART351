@@ -49,7 +49,7 @@ body::after {
 
   filter: blur(4px);
 
-  animation: ghibliGlow 30s ease-in-out infinite alternate;
+  animation: ghibliGlow 10s ease-in-out infinite alternate;
   z-index: -1;
 }
 
