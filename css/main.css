@@ -258,13 +258,13 @@ main {
 .project-card::before {
   content: "";
   position: absolute;
-  top: 10px;
-  left: 18px;
-  width: 60px;
-  height: 14px;
-  background: rgba(255, 244, 189, 0.8);
+  top: 5px;
+  left: -10px;
+  width: 150px;
+  height: 20px;
+  background: rgba(250, 11, 190, 0.8);
   border-radius: 4px;
-  transform: rotate(-8deg);
+  transform: rotate(-20deg);
   box-shadow: 0 2px 4px rgba(180, 160, 100, 0.5);
 }
 
