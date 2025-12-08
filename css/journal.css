@@ -14,7 +14,7 @@ body {
   position: relative;
   overflow-x: hidden;
 
-  background: linear-gradient(140deg, #ffecf5, #e8f4ff, #fff7e1);
+  background: linear-gradient(140deg, #ce95fc, #bd6ffd, #ad55f5);
   background-size: 400% 400%;
   animation: ghibliSky 18s ease infinite;
 }
