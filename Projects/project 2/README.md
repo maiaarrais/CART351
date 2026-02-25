@@ -2,6 +2,7 @@
 
 # 🧘‍♀️ Find Your Balance  
 A simple, class booking web app built with Flask to make lives easier.
+You can find pictures of the working app under the Static Folder and Outputs. 
 
 ---
 
